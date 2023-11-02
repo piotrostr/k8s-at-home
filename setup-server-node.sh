@@ -13,11 +13,24 @@ then
     curl -sfL https://get.rke2.io | sh -
 fi
 
+# prepare environment
+systemctl stop ufw
+systemctl disable ufw
+
+apt update && apt install nfs-common -y
+apt autoremove -y
+
 # check if enabled, otherwise enable
-if ! systemctl is-enabled rke2-server.service &> /dev/null
-then
-    systemctl enable rke2-server.service
-fi
+systemctl enable rke2-server.service
+
+print "Please verify that the /etc/rancher/rke2/config.yaml file has the following content:"
+
+cat <<EOF
+server: https://[server_ip]:9345
+token: [token]
+EOF
+
+read -p "Press enter to continue"
 
 # check if running, otherwise start
 if ! systemctl is-active rke2-server.service &> /dev/null
